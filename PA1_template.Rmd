@@ -82,4 +82,8 @@ medianSteps2
   g <- g + facet_grid(. ~ day)
   g
 ```
+
+
 ### Differences in activity patterns between weekdays and weekends shows more activity on the intervals from 500 to 1000 during weekdays.
+
+### End of assignment

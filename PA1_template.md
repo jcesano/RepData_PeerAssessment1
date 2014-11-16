@@ -111,4 +111,8 @@ medianSteps2
 ```
 
 ![](./PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
+
+
 ### Differences in activity patterns between weekdays and weekends shows more activity on the intervals from 500 to 1000 during weekdays.
+
+### End of assignment
