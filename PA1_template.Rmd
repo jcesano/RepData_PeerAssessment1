@@ -8,8 +8,8 @@ output:
 
 ## Loading and preprocessing the data
 ```{r}
-data <- read.csv("activity.csv")
-data <- data[complete.cases(data),]
+activitydata <- read.csv("activity.csv")
+data <- activitydata[complete.cases(activitydata),]
 ```
 
 ## What is mean total number of steps taken per day?
@@ -33,11 +33,53 @@ result <- meanStepsInterval[meanStepsInterval$x==max(meanStepsInterval$x),]$Grou
 
 ## Imputing missing values
 ```{r}
-dataNA <-read.csv("activity.csv")
-dataNA <-dataNA[!complete.cases(dataNA),]
+dataNA <-activitydata[!complete.cases(activitydata),]
 nrowsNA <- nrow(dataNA)
 ```
 ### The number of missing values in the dataset is `r nrowsNA`
 #### The Stragety used to fill the NAs values is to use the mean fot that 5-interval over all days.
+```{r}
+activitydata2 <- activitydata
+for (i in 1:length(meanStepsInterval$Group.1)) {
+
+    len  <- length(activitydata2[(is.na(activitydata2$steps) & activitydata2$interval == 
+    meanStepsInterval$Group.1[i]),]$steps)
+
+    activitydata2[(is.na(activitydata2$steps) & activitydata2$interval == 
+    meanStepsInterval$Group.1[i]),]$steps  <- rep(meanStepsInterval$x[i],len)
+  }
+  
+  table2  <- aggregate(activitydata2$steps, by = list(date = activitydata2$date), FUN = sum)
+
+  hist(table2$x, main = "Histogram Total Steps per Day", xlab = "Total Steps
+       Per Day", col = 'blue')
+meanSteps2  <- mean(table2$x)
+meanSteps2
+medianSteps2  <- median(table2$x)
+medianSteps2
+```
+### These values differ from the estimates from the first part of the assignment. Now mean and median are the same. Imputing missing data on the estimates of the total daily number of steps introduce less bias.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+```{r}
+  # Create a new factor variable in the dataset with two levels – “weekday” and “weekend”
+  # indicating whether a given date is a weekday or weekend day.
+  dataext  <-  data.frame(day = weekdays(as.Date(activitydata2$date)), activitydata2)
+  dataext <- transform(dataext , day = ifelse((day == "Saturday" | day == "Sunday"), 
+                       "weekend", "weekday"))
+  dataext  <- transform(dataext, day = as.factor(day))
+
+  # Compute the average of total number steps per interval per weekend or weekday
+  table3  <- aggregate(dataext$steps, by = list(interval = dataext$interval, 
+                      day = dataext$day), FUN = mean)
+
+  # Make de plot
+  library("ggplot2")
+  g <- ggplot(table3, aes(interval, x))
+  g <- g + geom_line(aes(color = day), size = 1, alpha = 1/2)
+  g <- g + ggtitle("Activity patterns between weekdays and weekends")
+  g <- g + ylab("Number of Steps") + ylim(c(0,250)) + xlim(c(0,2500))
+  g <- g + facet_grid(. ~ day)
+  g
+```
+### Differences in activity patterns between weekdays and weekends shows more activity on the intervals from 500 to 1000 during weekdays.
